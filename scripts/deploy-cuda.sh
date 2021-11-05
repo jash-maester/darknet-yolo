@@ -17,20 +17,21 @@ else
     sudo apt-get install -y --no-install-recommends libcudnn8-dev
     sudo rm -rf /usr/local/cuda
     sudo ln -s /usr/local/cuda-11.4 /usr/local/cuda
-  elif [[ $(cut -f2 <<< $(lsb_release -r)) == "20.04" ]]; then
+  elif [[ $(cut -f2 <<< $(lsb_release -r)) == "20.04" ] || [ $(cut -f2 <<< $(lsb_release -r)) == "21.10" ]]; then
     sudo apt-get update
     sudo apt-get install build-essential g++
     sudo apt-get install apt-transport-https ca-certificates gnupg software-properties-common wget
-    sudo wget -O /etc/apt/preferences.d/cuda-repository-pin-600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+    sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
     sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
-    sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
-    sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64/ /"
+    sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
     sudo apt-get update
-    sudo apt-get dist-upgrade -y
-    sudo apt-get install -y --no-install-recommends cuda-compiler-11-4 cuda-libraries-dev-11-4 cuda-driver-dev-11-4 cuda-cudart-dev-11-4
+    sudo apt-get -y install cuda
     sudo apt-get install -y --no-install-recommends libcudnn8-dev
-    sudo rm -rf /usr/local/cuda
-    sudo ln -s /usr/local/cuda-11.4 /usr/local/cuda
+    echo 'export CUDA_HOME=/usr/local/cuda' >> ~/.bashrc
+    echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64' >> ~/.bashrc
+    echo 'export PATH=$PATH:$CUDA_HOME/bin' >> ~/.bashrc
+
   else
     echo "Unable to deploy CUDA on this Linux version, please wait for a future script update"
   fi
